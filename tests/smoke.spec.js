@@ -89,6 +89,8 @@ test('keeps working offline after the first visit', async ({ page, context }) =>
   await context.setOffline(true);
   await page.reload();
   await expect(page.locator('#a-names')).toHaveText('Aarav & Diya');
+  await expect(page.locator('#a-studio-logo')).toBeVisible(); // logo is in the offline cache
+  expect(await page.locator('#a-studio-logo').evaluate((i) => i.naturalWidth)).toBeGreaterThan(0);
   await expect(page.locator('.mode-btn')).toHaveCount(4);
   await context.setOffline(false);
 });

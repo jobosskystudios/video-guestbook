@@ -4,7 +4,7 @@
 //  (Per-event changes are made in the in-app Admin panel.)
 // =============================================================
 
-export const APP_VERSION = '1.0.3';
+export const APP_VERSION = '1.0.4';
 
 export const DEFAULTS = {
   // ---------- Event ----------
@@ -14,9 +14,11 @@ export const DEFAULTS = {
   welcomeTitle: 'Leave us a message!',
   thanksTitle: 'Thank you!',
   thanksSub: 'Your message means the world to us.',
-  galleryUrl: '',               // optional: QR code shown on the Thank-you screen
-  qrLabel: 'Scan to see the wedding gallery',
-  studioName: '',               // small credit on the welcome screen, e.g. "by Jobossky Studios"
+  galleryUrl: 'https://www.instagram.com/jobosskystudios/', // QR code on the Thank-you screen (swap for the couple's gallery per event)
+  qrLabel: 'Follow @jobosskystudios on Instagram',
+  studioName: 'Jobossky Studios', // credit on the welcome screen (text fallback for the logo)
+  studioLogo: 'icons/studio-logo.png', // white logo, transparent background
+  showStudioLogo: true,
 
   // ---------- Experience ----------
   modeVideo: true,

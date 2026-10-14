@@ -346,7 +346,11 @@ function renderAttract() {
   $('#a-date').textContent = s.eventDate;
   $('#a-title').textContent = s.welcomeTitle;
   $('#a-hashtag').textContent = s.hashtag;
-  $('#a-studio').textContent = s.studioName;
+  // Studio logo replaces the credit text when shown; the text is the fallback.
+  const studioLogo = $('#a-studio-logo'), useLogo = !!(s.showStudioLogo && s.studioLogo);
+  if (useLogo) { studioLogo.src = s.studioLogo; studioLogo.alt = s.studioName; }
+  studioLogo.hidden = !useLogo;
+  $('#a-studio').textContent = useLogo ? '' : s.studioName;
   const logo = $('#a-logo');
   if (s.showLogo && S.assetUrls.logo) { logo.src = S.assetUrls.logo; logo.hidden = false; } else logo.hidden = true;
   const modes = enabledModes(), box = $('#a-modes');
@@ -714,7 +718,8 @@ const SCHEMA = {
     { key: 'thanksSub', label: 'Thank-you message', type: 'text' },
     { key: 'galleryUrl', label: 'QR code link', type: 'url', help: 'Optional. Shows a QR code on the thank-you screen (e.g. the couple’s gallery, your Instagram or WhatsApp).' },
     { key: 'qrLabel', label: 'QR caption', type: 'text' },
-    { key: 'studioName', label: 'Studio credit', type: 'text', help: 'Small text bottom-right of the welcome screen, e.g. “Video guestbook by Jobossky Studios”.' },
+    { key: 'studioName', label: 'Studio credit', type: 'text', help: 'Bottom-right of the welcome screen. Shown as text when the studio logo is off.' },
+    { key: 'showStudioLogo', label: 'Show studio logo', type: 'toggle', help: 'Jobossky Studios logo on the welcome screen (not burned into videos).' },
   ],
   Experience: [
     { section: 'Modes guests can pick' },

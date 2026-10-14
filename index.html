@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Guestbook">
+<meta name="theme-color" content="#0d0c0b">
+<title>Video Guestbook</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body data-screen="attract" data-mode="video">
+
+<!-- Hidden camera feed; everything you see is drawn onto #view -->
+<video id="cam" playsinline muted autoplay></video>
+
+<div id="backdrop"></div>
+<div id="stage"><canvas id="view" width="1920" height="1080"></canvas></div>
+
+<!-- ============ WELCOME / ATTRACT ============ -->
+<section class="screen" id="s-attract">
+  <div class="center-col">
+    <img id="a-logo" class="a-logo" alt="" hidden>
+    <p class="eyebrow" id="a-date"></p>
+    <h1 class="names" id="a-names"></h1>
+    <h2 class="headline" id="a-title"></h2>
+    <p class="sub" id="a-choose" data-t="chooseMode"></p>
+    <div class="modes" id="a-modes"></div>
+    <p class="sub pulse" id="a-tap" data-t="tapStart"></p>
+    <p class="cam-error" id="a-error" hidden></p>
+  </div>
+  <p class="corner-note" id="a-hashtag"></p>
+  <p class="corner-note right" id="a-studio"></p>
+</section>
+
+<!-- ============ NAME + CONSENT ============ -->
+<section class="screen" id="s-name">
+  <div class="card">
+    <h2 class="card-title" data-t="yourName" id="name-title"></h2>
+    <input id="guest-name" type="text" autocomplete="off" autocapitalize="words" enterkeyhint="next" maxlength="60">
+    <label class="consent" id="consent-row"><input type="checkbox" id="consent-box"><span id="consent-text"></span></label>
+    <div class="row">
+      <button class="btn ghost" data-act="home" data-t="back"></button>
+      <button class="btn primary" id="name-next" data-t="next"></button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PROMPT CARD ============ -->
+<section class="screen" id="s-prompt">
+  <div class="card prompt-card">
+    <p class="eyebrow" data-t="promptTitle"></p>
+    <p class="prompt-text" id="prompt-text"></p>
+    <div class="row">
+      <button class="btn ghost" id="prompt-shuffle" data-t="shuffle"></button>
+      <button class="btn primary" id="prompt-use" data-t="useThis"></button>
+    </div>
+    <button class="link" id="prompt-skip" data-t="ownWords"></button>
+  </div>
+</section>
+
+<!-- ============ LIVE (preview / countdown / recording) ============ -->
+<section class="screen" id="s-live">
+  <div class="progress"><div id="rec-progress"></div></div>
+  <div class="live-top">
+    <button class="btn ghost small" data-act="home" id="live-back" data-t="back"></button>
+    <div class="live-prompt" id="live-prompt"></div>
+    <div class="rec-badge" id="rec-badge" hidden><span class="dot"></span><span id="rec-time">0:00</span></div>
+  </div>
+  <div class="audio-stage" id="audio-stage">
+    <canvas id="audio-viz" width="900" height="300"></canvas>
+    <p class="names small" id="audio-names"></p>
+  </div>
+  <div class="countdown" id="countdown"></div>
+  <div class="flash" id="flash"></div>
+  <div class="live-bottom">
+    <div class="filters" id="filters"></div>
+    <div class="shutter-row">
+      <div class="meter" id="meter-wrap" title="Mic level"><div id="meter"></div></div>
+      <button class="shutter" id="shutter" aria-label="Record"><span></span></button>
+      <div class="live-hint" id="live-hint"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PROCESSING (boomerang) ============ -->
+<section class="screen" id="s-processing">
+  <div class="center-col">
+    <canvas id="proc-canvas" class="proc-canvas"></canvas>
+    <p class="sub" data-t="making"></p>
+  </div>
+</section>
+
+<!-- ============ REVIEW ============ -->
+<section class="screen" id="s-review">
+  <div class="review-media" id="review-media"></div>
+  <div class="review-bar">
+    <button class="btn ghost" id="review-retake" data-t="retake"></button>
+    <button class="btn primary big" id="review-save" data-t="save"></button>
+  </div>
+  <p class="autosave" id="review-autosave"></p>
+</section>
+
+<!-- ============ THANK YOU ============ -->
+<section class="screen" id="s-thanks">
+  <canvas id="confetti"></canvas>
+  <div class="center-col">
+    <h1 class="names" id="t-title"></h1>
+    <p class="sub" id="t-sub"></p>
+    <div class="qr" id="t-qr" hidden></div>
+    <p class="eyebrow" id="t-qr-label"></p>
+  </div>
+</section>
+
+<!-- ============ ADMIN ============ -->
+<section class="screen admin" id="s-admin">
+  <header class="admin-head">
+    <h2>Guestbook Admin</h2>
+    <nav id="admin-tabs"></nav>
+    <button class="btn primary small" id="admin-close">Done</button>
+  </header>
+  <div class="admin-body" id="admin-body"></div>
+</section>
+
+<!-- ============ MODALS ============ -->
+<div class="modal" id="m-pin" hidden>
+  <div class="card pin-card">
+    <p class="eyebrow">Staff only</p>
+    <div class="pin-dots" id="pin-dots"></div>
+    <div class="keypad" id="keypad"></div>
+    <button class="link" id="pin-cancel">Cancel</button>
+  </div>
+</div>
+<div class="modal" id="m-confirm" hidden>
+  <div class="card">
+    <p id="confirm-text"></p>
+    <div class="row">
+      <button class="btn ghost" id="confirm-no">Cancel</button>
+      <button class="btn danger" id="confirm-yes">Delete</button>
+    </div>
+  </div>
+</div>
+<div class="modal" id="m-player" hidden>
+  <div class="card player-card">
+    <div id="player-media"></div>
+    <p id="player-info" class="muted"></p>
+    <button class="btn ghost" id="player-close">Close</button>
+  </div>
+</div>
+
+<div id="toast" role="status"></div>
+<div id="hotspot" aria-hidden="true"></div>
+
+<script src="vendor/qrcode.js"></script>
+<script type="module" src="app.js"></script>
+</body>
+</html>

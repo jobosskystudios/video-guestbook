@@ -1,0 +1,13 @@
+{
+  "name": "video-guestbook",
+  "private": true,
+  "description": "Dev-only tooling. The app itself has no build step and no runtime dependencies.",
+  "scripts": {
+    "start": "serve . -l 3000",
+    "test": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.48.0",
+    "serve": "^14.2.0"
+  }
+}

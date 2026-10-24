@@ -5,7 +5,7 @@
 //  Hidden admin: tap the top-left corner 5× (or open URL with #admin)
 // =============================================================
 import * as db from './db.js';
-import { APP_VERSION, DEFAULTS, STRINGS, FILTERS, FONTS } from './config.js';
+import { APP_VERSION, DEFAULTS, STRINGS, FILTERS, FONTS, PROFILE_ID, EVENT_PRESETS, LANGUAGES } from './config.js';
 
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
@@ -42,8 +42,16 @@ const S = {
 };
 
 function loadSettings() {
-  try { return { ...DEFAULTS, ...JSON.parse(localStorage.getItem('vg.settings') || '{}') }; }
-  catch { return { ...DEFAULTS }; }
+  try {
+    let saved = JSON.parse(localStorage.getItem('vg.settings') || '{}');
+    if (saved.profileId !== PROFILE_ID) { // new event profile: keep only device + kiosk settings
+      const keep = ['cameraId', 'cameraLabel', 'micId', 'micLabel', 'resolution', 'engine', 'voiceCleanup', 'pin', 'mirror'];
+      saved = Object.fromEntries(keep.filter((k) => k in saved).map((k) => [k, saved[k]]));
+      saved.profileId = PROFILE_ID;
+    }
+    if (saved.language === 'both') saved.language = 'en-hi';
+    return { ...DEFAULTS, ...saved };
+  } catch { return { ...DEFAULTS }; }
 }
 function saveSettings() {
   try { localStorage.setItem('vg.settings', JSON.stringify(S.settings)); } catch (e) { console.warn(e); }
@@ -63,9 +71,11 @@ function detectCanvasFilter() {
 // ------------------------------------------------------------- i18n
 const fmt = (s, v) => String(s).replace(/\{(\w+)\}/g, (_, k) => (v && k in v ? v[k] : ''));
 function str(lang, key, vars) { return fmt(STRINGS[lang]?.[key] ?? STRINGS.en[key] ?? key, vars); }
-function t(key, vars) { return str(S.settings.language === 'hi' ? 'hi' : 'en', key, vars); }
+const langs = () => String(S.settings.language || 'en').split('-'); // 'en-ta' → ['en','ta']
+function t(key, vars) { return str(langs()[0], key, vars); }
 function tHTML(key, vars) {
-  if (S.settings.language === 'both') return `${esc(str('en', key, vars))}<small>${esc(str('hi', key, vars))}</small>`;
+  const [a, b] = langs();
+  if (b) return `${esc(str(a, key, vars))}<small>${esc(str(b, key, vars))}</small>`;
   return esc(t(key, vars));
 }
 function applyI18n(root = document) { $$('[data-t]', root).forEach((el) => { el.innerHTML = tHTML(el.dataset.t); }); }
@@ -406,10 +416,9 @@ function afterName() {
 }
 
 function promptList() {
-  const L = S.settings.language, lines = (k) => String(S.settings[k] || '').split('\n').map((x) => x.trim()).filter(Boolean);
-  if (L === 'hi') return lines('promptsHi');
-  if (L === 'both') return [...lines('promptsEn'), ...lines('promptsHi')];
-  return lines('promptsEn');
+  const key = { en: 'promptsEn', hi: 'promptsHi', ta: 'promptsTa' };
+  const lines = (k) => String(S.settings[k] || '').split('\n').map((x) => x.trim()).filter(Boolean);
+  return langs().flatMap((l) => lines(key[l] || 'promptsEn'));
 }
 function nextPrompt() {
   if (!S.promptBag.length) S.promptBag = promptList().sort(() => Math.random() - 0.5);
@@ -659,7 +668,7 @@ function applySettings() {
   const bd = $('#backdrop');
   bd.style.backgroundColor = s.bgColor;
   bd.style.backgroundImage = s.bgMode === 'image' && S.assetUrls.bg ? `url("${S.assetUrls.bg}")` : 'none';
-  document.documentElement.lang = s.language === 'hi' ? 'hi' : 'en';
+  document.documentElement.lang = langs()[0];
   sizeCanvas(); applyI18n(); renderAttract();
 }
 
@@ -710,6 +719,7 @@ function confirmBox(text, yes = 'Delete') {
 const opt = (pairs) => pairs.map(([v, l]) => ({ v: String(v), l }));
 const SCHEMA = {
   Event: [
+    { custom: 'presets' },
     { key: 'coupleNames', label: 'Couple names', type: 'text' },
     { key: 'eventDate', label: 'Date (as displayed)', type: 'text' },
     { key: 'hashtag', label: 'Hashtag', type: 'text' },
@@ -741,7 +751,8 @@ const SCHEMA = {
     { key: 'consentText', label: 'Consent text', type: 'text' },
     { section: 'Prompts & language' },
     { key: 'showPrompts', label: 'Show question prompts', type: 'toggle' },
-    { key: 'language', label: 'Language', type: 'select', options: opt([['en', 'English'], ['hi', 'हिन्दी (Hindi)'], ['both', 'English + हिन्दी']]) },
+    { key: 'language', label: 'Language', type: 'select', options: opt(LANGUAGES) },
+    { key: 'promptsTa', label: 'Tamil prompts', type: 'textarea', help: 'One question per line.' },
     { key: 'promptsEn', label: 'English prompts', type: 'textarea', help: 'One question per line.' },
     { key: 'promptsHi', label: 'Hindi prompts', type: 'textarea', help: 'One question per line.' },
   ],
@@ -800,7 +811,7 @@ function setSetting(key, value) {
   S.settings[key] = value; saveSettings();
   if (DEVICE_KEYS.includes(key)) S.needsRestart = true;
   if (['coupleNames', 'eventDate', 'hashtag', 'accent', 'fontStyle', 'frameStyle', 'showLogo', 'useCustomOverlay', 'orientation', 'resolution'].includes(key)) sizeCanvas();
-  if (key === 'language' || key === 'promptsEn' || key === 'promptsHi') S.promptBag = [];
+  if (key === 'language' || key.startsWith('prompts')) S.promptBag = [];
 }
 function renderAdmin() {
   revokeGallery();
@@ -812,6 +823,7 @@ function renderAdmin() {
   for (const f of sch) {
     if (f.section) { const h = document.createElement('h3'); h.className = 'section-title'; h.textContent = f.section; fs.append(h); continue; }
     if (f.custom === 'kioskHelp') { fs.append(kioskHelp()); continue; }
+    if (f.custom === 'presets') { fs.append(presetButtons()); continue; }
     fs.append(field(f));
   }
 }
@@ -847,6 +859,18 @@ function field(f) {
     ctl.append(i);
   }
   return row;
+}
+function presetButtons() {
+  const d = document.createElement('div'); d.className = 'field';
+  d.innerHTML = `<label>Switch event<span class="help">Each event gets its own Gallery folder. Current: <b>${esc(S.settings.eventDate)}</b></span></label><div class="row" style="justify-content:flex-start"></div>`;
+  const row = $('.row', d);
+  EVENT_PRESETS.forEach((p) => {
+    const on = Object.entries(p.set).every(([k, v]) => S.settings[k] === v);
+    const b = document.createElement('button'); b.className = 'btn small ' + (on ? 'primary' : 'ghost'); b.textContent = p.label;
+    b.onclick = () => { Object.entries(p.set).forEach(([k, v]) => setSetting(k, v)); renderAdmin(); toast('Switched to ' + p.label); };
+    row.append(b);
+  });
+  return d;
 }
 function kioskHelp() {
   const d = document.createElement('div'); d.className = 'help-text';

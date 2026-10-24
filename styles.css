@@ -248,3 +248,6 @@ body[data-screen="admin"] #hotspot { display: none; }
   .filters { position: fixed; left: 20px; top: 50%; transform: translateY(-50%); flex-direction: column; align-items: stretch; z-index: 3; }
   .live-top { padding-right: 24px; }
 }
+
+/* Tamil/Hindi lines must not inherit wide letter-spacing or uppercase (breaks the script) */
+.eyebrow small, [data-t] small { letter-spacing: normal; text-transform: none; }

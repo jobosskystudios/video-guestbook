@@ -4,18 +4,34 @@
 //  (Per-event changes are made in the in-app Admin panel.)
 // =============================================================
 
-export const APP_VERSION = '1.0.4';
+export const APP_VERSION = '1.1.0';
+
+// Changing PROFILE_ID makes every iPad drop old event text/branding on next load
+// (camera, mic, PIN and resolution are kept).
+export const PROFILE_ID = 'mahati-sankar-oct-2026';
+
+// One-tap event switching in Admin → Event. Each event gets its own Gallery folder.
+export const EVENT_PRESETS = [
+  { label: 'Reception — Sat 24 Oct, 7 PM', set: { eventDate: 'Reception · 24 October 2026', welcomeTitle: 'Leave a little love. Watch it bloom.' } },
+  { label: 'Muhurtham — Sun 25 Oct, 9 AM', set: { eventDate: 'Muhurtham · 25 October 2026', welcomeTitle: 'Bless the couple on their big day' } },
+];
+
+export const LANGUAGES = [
+  ['en-ta', 'English + தமிழ் (Tamil)'], ['en', 'English'], ['ta', 'தமிழ் (Tamil)'],
+  ['en-hi', 'English + हिन्दी'], ['hi', 'हिन्दी (Hindi)'],
+];
 
 export const DEFAULTS = {
   // ---------- Event ----------
-  coupleNames: 'Aarav & Diya',
-  eventDate: '12 December 2026',
-  hashtag: '#AaravWedsDiya',
-  welcomeTitle: 'Leave us a message!',
-  thanksTitle: 'Thank you!',
-  thanksSub: 'Your message means the world to us.',
-  galleryUrl: 'https://www.instagram.com/jobosskystudios/', // QR code on the Thank-you screen (swap for the couple's gallery per event)
-  qrLabel: 'Follow @jobosskystudios on Instagram',
+  coupleNames: 'Mahati & Sankar',
+  eventDate: 'Reception · 24 October 2026',
+  hashtag: '',
+  welcomeTitle: 'Leave a little love. Watch it bloom.',
+  thanksTitle: 'Thank you! · நன்றி!',
+  thanksSub: 'Your presence and blessings make our celebration complete.',
+  profileId: PROFILE_ID,
+  galleryUrl: 'https://www.jobosskystudios.online/mswedding', // QR code on the Thank-you screen (swap for the couple's gallery per event)
+  qrLabel: 'Scan to share photos & wishes',
   studioName: 'Jobossky Studios', // credit on the welcome screen (text fallback for the logo)
   studioLogo: 'icons/studio-logo.png', // white logo, transparent background
   showStudioLogo: true,
@@ -35,7 +51,7 @@ export const DEFAULTS = {
   consent: false,
   consentText: 'I agree that the couple may share my message.',
   showPrompts: true,
-  language: 'en',               // 'en' | 'hi' | 'both'
+  language: 'en-ta',            // see LANGUAGES above
   sounds: true,
 
   // ---------- Look ----------
@@ -65,16 +81,26 @@ export const DEFAULTS = {
 
   // ---------- Prompts (one per line) ----------
   promptsEn: [
-    'Share your best piece of marriage advice.',
+    'Share your best piece of marriage advice for Mahati & Sankar.',
     'How do you know the couple? Tell us the story!',
-    'What is your favourite memory with them?',
+    'They grew up just 2 km apart but met at IIM Indore — destiny or what?',
+    'What is your favourite memory with Mahati or Sankar?',
     'Where do you see these two in 10 years?',
     'Describe the couple in three words.',
     'Give them a blessing for their new journey.',
     'Predict it: who will say sorry first after a fight?',
+    'One tip for Sankar — and one for Mahati!',
     'Sing them one line of your favourite love song!',
-    'What should they never stop doing together?',
-    'Spill one funny secret about the bride or groom!',
+  ].join('\n'),
+  promptsTa: [
+    'மஹதி & சங்கருக்கு உங்கள் சிறந்த திருமண அறிவுரை என்ன?',
+    'மணமக்களை உங்களுக்கு எப்படித் தெரியும்? கதையைச் சொல்லுங்கள்!',
+    'இவர்களுடன் உங்கள் மறக்க முடியாத நினைவு எது?',
+    'பத்து வருடங்கள் கழித்து இவர்களை எப்படிப் பார்க்க விரும்புகிறீர்கள்?',
+    'மூன்று வார்த்தைகளில் இந்த ஜோடியை விவரியுங்கள்!',
+    'புதிய வாழ்க்கைக்கு உங்கள் ஆசீர்வாதத்தைச் சொல்லுங்கள்.',
+    'சண்டைக்குப் பிறகு முதலில் "சாரி" சொல்வது யார்?',
+    'இவர்களுக்காக ஒரு காதல் பாடலின் ஒரு வரியைப் பாடுங்கள்!',
   ].join('\n'),
   promptsHi: [
     'नवविवाहित जोड़े को शादी की एक सलाह दीजिए।',
@@ -110,6 +136,26 @@ export const STRINGS = {
     autosave: 'Saving automatically in {n}s',
     savePhoto: 'Save my photo', saveIt: 'Save it!',
     cameraError: 'Camera not ready — staff: tap the top-left corner 5 times for settings.',
+  },
+  ta: {
+    tapStart: 'தொடங்க திரையில் எங்கு வேண்டுமானாலும் தொடவும்',
+    chooseMode: 'எப்படி வாழ்த்த விரும்புகிறீர்கள்?',
+    video: 'வீடியோ வாழ்த்து', audio: 'குரல் வாழ்த்து', photo: 'புகைப்படம்', boomerang: 'பூமராங்',
+    yourName: 'வாழ்த்துபவர் யார்?',
+    namePh: 'உ.தா: ராகுல் & ப்ரியா — கல்லூரி நண்பர்கள்',
+    next: 'அடுத்து', back: 'பின்செல்',
+    promptTitle: 'ஒரு யோசனை வேண்டுமா?',
+    shuffle: 'வேறு கேள்வி', useThis: 'இதையே தேர்வு செய்', ownWords: 'வேண்டாம் — என் வார்த்தைகளில் சொல்கிறேன்',
+    getReady: 'கேமரா முன் நின்று, பொத்தானை அழுத்தவும்',
+    getReadyAudio: 'மைக் அருகில் பேசி, பொத்தானை அழுத்தவும்',
+    tapStop: 'நிறுத்த தொடவும்',
+    recording: 'REC',
+    keepMoving: 'அசைந்து கொண்டே இருங்கள்!',
+    making: 'உங்கள் பூமராங் தயாராகிறது…',
+    save: 'வாழ்த்தைச் சேமி', retake: 'மீண்டும் பதிவு செய்',
+    autosave: '{n} வினாடிகளில் தானாகச் சேமிக்கப்படும்',
+    savePhoto: 'புகைப்படத்தைச் சேமி', saveIt: 'சேமி',
+    cameraError: 'கேமரா தயாராக இல்லை.',
   },
   hi: {
     tapStart: 'शुरू करने के लिए कहीं भी टैप करें',

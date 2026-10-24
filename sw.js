@@ -1,6 +1,6 @@
 // Offline support: the app keeps working at venues with no Wi-Fi.
 // Bump CACHE when you deploy changes so iPads pick up the new version.
-const CACHE = 'vg-v1.0.4';
+const CACHE = 'vg-v1.1.0';
 const SHELL = ['./', 'index.html', 'styles.css', 'app.js', 'config.js', 'db.js', 'vendor/qrcode.js',
   'manifest.webmanifest', 'icons/icon-180.png', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/studio-logo.png'];
 
